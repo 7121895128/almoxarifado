@@ -1,0 +1,29 @@
+//Categoria
+
+package com.br.almoxarifado.repository;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import com.br.almoxarifado.model.Categoria;
+
+public interface CategoriaRepository extends JpaRepository<Categoria, Long> {
+}
+
+//Produto
+
+package com.br.almoxarifado.repository;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import com.br.almoxarifado.model.Produto;
+
+public interface ProdutoRepository extends JpaRepository<Produto, Long> {
+}
+
+//Movimentacao Estoque
+
+package com.br.almoxarifado.repository;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import com.br.almoxarifado.model.MovimentacaoEstoque;
+
+public interface MovimentacaoEstoqueRepository extends JpaRepository<MovimentacaoEstoque, Long> {
+}
