@@ -1,0 +1,247 @@
+//Produto Model
+
+package com.br.almoxarifado.model;
+
+import jakarta.persistence.*;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
+@Entity
+@Table(name = "produto")
+public class Produto {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long codigo;
+
+    // Nome
+    @Column(name = "nome", nullable = false, length = 150)
+    private String nome;
+
+    // SKU
+    @Column(name = "codigo_barras", length = 50)
+    private String codigoBarras;
+
+    // Quantidade atual disponível no estoque
+    @Column(name = "quantidade_estoque", nullable = false)
+    private Integer quantidadeEstoque;
+
+    // Preço unitário
+    @Column(name = "preco_unitario", precision = 10, scale = 2)
+    private BigDecimal precoUnitario;
+
+    // Data de validade
+    @Column(name = "data_validade")
+    private LocalDate dataValidade;
+
+    // Se o produto está ativo para uso/movimentação
+    @Column(name = "ativo", nullable = false)
+    private Boolean ativo;
+
+    // Unidade de medida:
+    @Column(name = "unidade_medida", length = 10)
+    private String unidadeMedida;
+
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
+    @JoinColumn(name = "categoria_codigo")
+    private Categoria categoria;
+
+    public Produto() {}
+
+    // Construtor completo
+    public Produto(Long codigo, String nome, String codigoBarras,
+                   Integer quantidadeEstoque, BigDecimal precoUnitario,
+                   LocalDate dataValidade, Boolean ativo,
+                   String unidadeMedida, Categoria categoria) {
+        this.codigo = codigo;
+        this.nome = nome;
+        this.codigoBarras = codigoBarras;
+        this.quantidadeEstoque = quantidadeEstoque;
+        this.precoUnitario = precoUnitario;
+        this.dataValidade = dataValidade;
+        this.ativo = ativo;
+        this.unidadeMedida = unidadeMedida;
+        this.categoria = categoria;
+    }
+
+    // GETTERS e SETTERS
+    public Long getCodigo() { return codigo; }
+    public void setCodigo(Long codigo) { this.codigo = codigo; }
+
+    public String getNome() { return nome; }
+    public void setNome(String nome) { this.nome = nome; }
+
+    public String getCodigoBarras() { return codigoBarras; }
+    public void setCodigoBarras(String codigoBarras) { this.codigoBarras = codigoBarras; }
+
+    public Integer getQuantidadeEstoque() { return quantidadeEstoque; }
+    public void setQuantidadeEstoque(Integer quantidade) { this.quantidadeEstoque = quantidade; }
+
+    public BigDecimal getPrecoUnitario() { return precoUnitario; }
+    public void setPrecoUnitario(BigDecimal precoUnitario) { this.precoUnitario = precoUnitario; }
+
+    public LocalDate getDataValidade() { return dataValidade; }
+    public void setDataValidade(LocalDate dataValidade) { this.dataValidade = dataValidade; }
+
+    public Boolean getAtivo() { return ativo; }
+    public void setAtivo(Boolean ativo) { this.ativo = ativo; }
+
+    public String getUnidadeMedida() { return unidadeMedida; }
+    public void setUnidadeMedida(String unidadeMedida) { this.unidadeMedida = unidadeMedida; }
+
+    public Categoria getCategoria() { return categoria; }
+    public void setCategoria(Categoria categoria) { this.categoria = categoria; }
+}
+
+//Categoria Models
+
+package com.br.almoxarifado.model;
+
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "categoria")
+public class Categoria {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long codigo;
+
+    // Nome da categoria - obrigatório
+    @Column(name = "nome", nullable = false, length = 100)
+    private String nome;
+
+    // Descrição detalhada da categoria
+    @Column(name = "descricao", length = 255)
+    private String descricao;
+
+    // Se a categoria está ativa ou desativada no sistema
+    @Column(name = "ativo", nullable = false)
+    private Boolean ativo;
+
+    @Column(name = "codigo_interno", length = 20)
+    private String codigoInterno;
+
+    // Quantidade máxima de itens permitidos nesta categoria
+    @Column(name = "limite_estoque")
+    private Integer limiteEstoque;
+
+    // Construtor padrão obrigatório para o JPA
+    public Categoria() {}
+
+    // Construtor completo para facilitar instanciação
+    public Categoria(Long codigo, String nome, String descricao,
+                     Boolean ativo, String codigoInterno, Integer limiteEstoque) {
+        this.codigo = codigo;
+        this.nome = nome;
+        this.descricao = descricao;
+        this.ativo = ativo;
+        this.codigoInterno = codigoInterno;
+        this.limiteEstoque = limiteEstoque;
+    }
+
+    // GETTERS e SETTERS
+    public Long getCodigo() { return codigo; }
+    public void setCodigo(Long codigo) { this.codigo = codigo; }
+
+    public String getNome() { return nome; }
+    public void setNome(String nome) { this.nome = nome; }
+
+    public String getDescricao() { return descricao; }
+    public void setDescricao(String descricao) { this.descricao = descricao; }
+
+    public Boolean getAtivo() { return ativo; }
+    public void setAtivo(Boolean ativo) { this.ativo = ativo; }
+
+    public String getCodigoInterno() { return codigoInterno; }
+    public void setCodigoInterno(String codigoInterno) { this.codigoInterno = codigoInterno; }
+
+    public Integer getLimiteEstoque() { return limiteEstoque; }
+    public void setLimiteEstoque(Integer limiteEstoque) { this.limiteEstoque = limiteEstoque; }
+}
+
+//Movimentacao Estoque
+
+package com.br.almoxarifado.model;
+
+import jakarta.persistence.*;
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "movimentacao_estoque")
+public class MovimentacaoEstoque {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long codigo;
+
+    // Tipo da operação: "ENTRADA" ou "SAIDA"
+    @Column(name = "tipo", nullable = false, length = 10)
+    private String tipo;
+
+    // Quantos itens foram movimentados nesta operação
+    @Column(name = "quantidade", nullable = false)
+    private Integer quantidade;
+
+    // Data e hora exata do registro da movimentação
+    @Column(name = "data_hora", nullable = false)
+    private LocalDateTime dataHora;
+
+    // Nome do funcionário que fez a movimentação
+    @Column(name = "responsavel", length = 100)
+    private String responsavel;
+
+    // Justificativa
+    @Column(name = "observacao", length = 255)
+    private String observacao;
+
+    // Indica se a movimentação foi auditada
+    @Column(name = "conferido", nullable = false)
+    private Boolean conferido;
+
+    // Relacionamento
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
+    @JoinColumn(name = "produto_codigo")
+    private Produto produto;
+
+    public MovimentacaoEstoque() {}
+
+    // Construtor completo
+    public MovimentacaoEstoque(Long codigo, String tipo, Integer quantidade,
+                                LocalDateTime dataHora, String responsavel,
+                                String observacao, Boolean conferido, Produto produto) {
+        this.codigo = codigo;
+        this.tipo = tipo;
+        this.quantidade = quantidade;
+        this.dataHora = dataHora;
+        this.responsavel = responsavel;
+        this.observacao = observacao;
+        this.conferido = conferido;
+        this.produto = produto;
+    }
+
+    // GETTERS e SETTERS
+    public Long getCodigo() { return codigo; }
+    public void setCodigo(Long codigo) { this.codigo = codigo; }
+
+    public String getTipo() { return tipo; }
+    public void setTipo(String tipo) { this.tipo = tipo; }
+
+    public Integer getQuantidade() { return quantidade; }
+    public void setQuantidade(Integer quantidade) { this.quantidade = quantidade; }
+
+    public LocalDateTime getDataHora() { return dataHora; }
+    public void setDataHora(LocalDateTime dataHora) { this.dataHora = dataHora; }
+
+    public String getResponsavel() { return responsavel; }
+    public void setResponsavel(String responsavel) { this.responsavel = responsavel; }
+
+    public String getObservacao() { return observacao; }
+    public void setObservacao(String observacao) { this.observacao = observacao; }
+
+    public Boolean getConferido() { return conferido; }
+    public void setConferido(Boolean conferido) { this.conferido = conferido; }
+
+    public Produto getProduto() { return produto; }
+    public void setProduto(Produto produto) { this.produto = produto; }
+}
