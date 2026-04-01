@@ -1,0 +1,259 @@
+//Categoria Controller
+
+package com.br.almoxarifado.controller;
+
+import java.net.URI;
+import java.util.List;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import com.br.almoxarifado.exception.ResourceNotFoundException;
+import com.br.almoxarifado.model.Categoria;
+import com.br.almoxarifado.repository.CategoriaRepository;
+
+@RestController
+@RequestMapping("/ccategoria")
+@CrossOrigin(origins = "*")
+public class CategoriaController {
+
+    private final CategoriaRepository repository;
+
+    public CategoriaController(CategoriaRepository repository) {
+        this.repository = repository;
+    }
+
+    // LISTAR — GET
+    @GetMapping("/categoria")
+    public List<Categoria> listar() {
+        return repository.findAll(Sort.by(Sort.Direction.DESC, "codigo"));
+    }
+
+    // CONSULTAR — GET
+    @GetMapping("/categoria/{id}")
+    public ResponseEntity<Categoria> consultar(@PathVariable Long id) {
+        Categoria categoria = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Categoria não encontrada com o ID: " + id));
+        return ResponseEntity.ok(categoria);
+    }
+
+    // INSERIR — POST
+    @PostMapping("/categoria")
+    public ResponseEntity<Categoria> inserir(@RequestBody Categoria categoria) {
+        Categoria novaCategoria = repository.save(categoria);
+
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(novaCategoria.getCodigo())
+                .toUri();
+        return ResponseEntity.created(uri).body(novaCategoria);
+    }
+
+    // Atualiza todos os campos da categoria com os dados recebidos no JSON
+    @PutMapping("/categoria/{id}")
+    public ResponseEntity<Categoria> alterar(@PathVariable Long id,
+                                              @RequestBody Categoria dadosNovos) {
+        Categoria categoriaExistente = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Categoria não encontrada com o ID: " + id));
+
+        // Sobrescreve cada campo com o novo valor recebido
+        categoriaExistente.setNome(dadosNovos.getNome());
+        categoriaExistente.setDescricao(dadosNovos.getDescricao());
+        categoriaExistente.setAtivo(dadosNovos.getAtivo());
+        categoriaExistente.setCodigoInterno(dadosNovos.getCodigoInterno());
+        categoriaExistente.setLimiteEstoque(dadosNovos.getLimiteEstoque());
+
+        Categoria categoriaAtualizada = repository.save(categoriaExistente);
+        return ResponseEntity.ok(categoriaAtualizada);
+    }
+
+    // EXCLUIR — DELETE
+    @DeleteMapping("/categoria/{id}")
+    public ResponseEntity<Void> excluir(@PathVariable Long id) {
+        repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Categoria não encontrada com o ID: " + id));
+
+        repository.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
+}
+
+//Produto Controler
+
+package com.br.almoxarifado.controller;
+
+import java.net.URI;
+import java.util.List;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import com.br.almoxarifado.exception.ResourceNotFoundException;
+import com.br.almoxarifado.model.Produto;
+import com.br.almoxarifado.repository.ProdutoRepository;
+
+@RestController
+@RequestMapping("/cproduto")
+@CrossOrigin(origins = "*")
+public class ProdutoController {
+
+    private final ProdutoRepository repository;
+
+    // Construtor com injeção do repositório
+    public ProdutoController(ProdutoRepository repository) {
+        this.repository = repository;
+    }
+
+    // LISTAR — GET
+    @GetMapping("/produto")
+    public List<Produto> listar() {
+        return repository.findAll(Sort.by(Sort.Direction.DESC, "codigo"));
+    }
+
+    // CONSULTAR — GET
+    @GetMapping("/produto/{id}")
+    public ResponseEntity<Produto> consultar(@PathVariable Long id) {
+        Produto produto = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Produto não encontrado com o ID: " + id));
+        return ResponseEntity.ok(produto);
+    }
+
+    // INSERIR — POST
+    @PostMapping("/produto")
+    public ResponseEntity<Produto> inserir(@RequestBody Produto produto) {
+        Produto novoProduto = repository.save(produto);
+
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(novoProduto.getCodigo())
+                .toUri();
+        return ResponseEntity.created(uri).body(novoProduto);
+    }
+
+    // ALTERAR — PUT
+    @PutMapping("/produto/{id}")
+    public ResponseEntity<Produto> alterar(@PathVariable Long id,
+                                            @RequestBody Produto dadosNovos) {
+        Produto produtoExistente = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Produto não encontrado com o ID: " + id));
+
+        // Atualiza campo a campo com os dados recebidos
+        produtoExistente.setNome(dadosNovos.getNome());
+        produtoExistente.setCodigoBarras(dadosNovos.getCodigoBarras());
+        produtoExistente.setQuantidadeEstoque(dadosNovos.getQuantidadeEstoque());
+        produtoExistente.setPrecoUnitario(dadosNovos.getPrecoUnitario());
+        produtoExistente.setDataValidade(dadosNovos.getDataValidade());
+        produtoExistente.setAtivo(dadosNovos.getAtivo());
+        produtoExistente.setUnidadeMedida(dadosNovos.getUnidadeMedida());
+        produtoExistente.setCategoria(dadosNovos.getCategoria());
+
+        Produto produtoAtualizado = repository.save(produtoExistente);
+        return ResponseEntity.ok(produtoAtualizado);
+    }
+
+    // EXCLUIR — DELETE
+    @DeleteMapping("/produto/{id}")
+    public ResponseEntity<Void> excluir(@PathVariable Long id) {
+        repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Produto não encontrado com o ID: " + id));
+
+        repository.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
+}
+
+//Movimentacao Estoque Contreoller
+
+package com.br.almoxarifado.controller;
+
+import java.net.URI;
+import java.util.List;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import com.br.almoxarifado.exception.ResourceNotFoundException;
+import com.br.almoxarifado.model.MovimentacaoEstoque;
+import com.br.almoxarifado.repository.MovimentacaoEstoqueRepository;
+
+@RestController
+@RequestMapping("/cmovimentacao")
+@CrossOrigin(origins = "*")
+public class MovimentacaoEstoqueController {
+
+    private final MovimentacaoEstoqueRepository repository;
+
+    // Injeção do repositório via construtor
+    public MovimentacaoEstoqueController(MovimentacaoEstoqueRepository repository) {
+        this.repository = repository;
+    }
+
+    // LISTAR — GET
+    @GetMapping("/movimentacao")
+    public List<MovimentacaoEstoque> listar() {
+        return repository.findAll(Sort.by(Sort.Direction.DESC, "codigo"));
+    }
+
+    // CONSULTAR — GET
+    @GetMapping("/movimentacao/{id}")
+    public ResponseEntity<MovimentacaoEstoque> consultar(@PathVariable Long id) {
+        MovimentacaoEstoque movimentacao = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Movimentação não encontrada com o ID: " + id));
+        return ResponseEntity.ok(movimentacao);
+    }
+
+    // INSERIR — POST
+    @PostMapping("/movimentacao")
+    public ResponseEntity<MovimentacaoEstoque> inserir(
+            @RequestBody MovimentacaoEstoque movimentacao) {
+
+        MovimentacaoEstoque novaMovimentacao = repository.save(movimentacao);
+
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(novaMovimentacao.getCodigo())
+                .toUri();
+        return ResponseEntity.created(uri).body(novaMovimentacao);
+    }
+
+    // ALTERAR — PUT
+    @PutMapping("/movimentacao/{id}")
+    public ResponseEntity<MovimentacaoEstoque> alterar(
+            @PathVariable Long id,
+            @RequestBody MovimentacaoEstoque dadosNovos) {
+
+        MovimentacaoEstoque movExistente = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Movimentação não encontrada com o ID: " + id));
+
+        // Atualiza todos os campos com os dados novos recebidos
+        movExistente.setTipo(dadosNovos.getTipo());
+        movExistente.setQuantidade(dadosNovos.getQuantidade());
+        movExistente.setDataHora(dadosNovos.getDataHora());
+        movExistente.setResponsavel(dadosNovos.getResponsavel());
+        movExistente.setObservacao(dadosNovos.getObservacao());
+        movExistente.setConferido(dadosNovos.getConferido());
+        movExistente.setProduto(dadosNovos.getProduto());
+
+        MovimentacaoEstoque movAtualizada = repository.save(movExistente);
+        return ResponseEntity.ok(movAtualizada);
+    }
+
+    // EXCLUIR — DELETE
+    @DeleteMapping("/movimentacao/{id}")
+    public ResponseEntity<Void> excluir(@PathVariable Long id) {
+        repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Movimentação não encontrada com o ID: " + id));
+
+        repository.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
+}
